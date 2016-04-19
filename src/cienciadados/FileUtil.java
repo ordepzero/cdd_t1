@@ -62,8 +62,46 @@ public class FileUtil {
         return matriz;
     }
     
-    public static void writeFile(String linha){
-        File file = new File("resultado6.txt");
+    
+    public static List<List<String>> readFile(String fileName,String separator,Integer totalRegistros){
+        BufferedReader br = null;
+        List<List<String>> matriz = new ArrayList<List<String>>();
+        int cont = 0;
+        try {
+
+                String sCurrentLine;
+
+                br = new BufferedReader(
+                        new FileReader(fileName));
+
+                while ((sCurrentLine = br.readLine()) != null && cont < totalRegistros) {
+                        //System.out.println(sCurrentLine);
+                        String[] temp = sCurrentLine.split(separator);
+                        List<String> linha = new ArrayList<String>();
+                        for(String s : temp){
+                            //System.out.println("<>"+s+"<>");
+                            linha.add(s);
+                        }
+                        matriz.add(linha);
+                        cont++;
+                }
+
+                System.out.println("Leu arquivo ");
+        } catch (IOException e) {
+                e.printStackTrace();
+        } finally {
+                try {
+                        if (br != null)br.close();
+                } catch (IOException ex) {
+                        ex.printStackTrace();
+                }
+        }
+        
+        return matriz;
+    }
+    
+    public static void writeFile(String linha,String fileName){
+        File file = new File(fileName);
 
         // if file doesnt exists, then create it
         FileWriter fw;

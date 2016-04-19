@@ -15,6 +15,8 @@ import java.util.List;
  */
 public class Cienciadados {
 
+    public final static String FILENAME = "filename.txt";
+    
     public static void main(String[] args) {
         List<List<String>> matriz = FileUtil.readFile("C:\\Users\\PeDeNRiQue\\Copy\\USP\\Disciplinas\\CienciaDosDados\\trabalho\\arquivos\\train.csv\\train.txt","\t");
         int total = matriz.size();
@@ -23,7 +25,7 @@ public class Cienciadados {
         List<List<String>> teste = matriz.subList(parte, total);
             
         String cabecalhos = "ID\tTARGET_ID\tID_REF\tTARGET_REF\tMENOR";
-        FileUtil.writeFile(cabecalhos);
+        FileUtil.writeFile(cabecalhos,FILENAME);
         for(int i = 0; i < teste.size(); i++){
             comparar(train,teste.get(i));
         }
@@ -64,7 +66,7 @@ public class Cienciadados {
             String resultado = registro.get(0)+"\t"+registro.get(1)+"\t"+matriz.get(indiceMenor).get(0)+"\t"
             +matriz.get(indiceMenor).get(1)+"\t"+menor;
 
-            FileUtil.writeFile(resultado);
+            FileUtil.writeFile(resultado,FILENAME);
         }
                 
     }

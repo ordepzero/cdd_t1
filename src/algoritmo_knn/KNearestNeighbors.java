@@ -16,24 +16,37 @@ import java.util.List;
  * @author PeDeNRiQue
  */
 public class KNearestNeighbors {
+    
+    /*
+    CONSIDERAR_PAR_PRESENTE quando false significa que vou considerar no cálculo da distância
+    mesmo quando um dos valores for ausente, e quando true só será considerado quando os dois registros tiverem 
+    um valor.
+    */
+    public final static Boolean CONSIDERAR_PAR_PRESENTE = false;    
+    public final static Integer CONSTANTE_K = 5;
+    public final static Integer NUMERO_REGISTROS = 10000;
+    public final static String ARQUIVO = "sem_id";
+    public final static String FILENAME = ARQUIVO+"_"+NUMERO_REGISTROS+"_K"+CONSTANTE_K+".txt";
+    
     public static void main(String [] args){
-        List<List<String>> matriz = FileUtil.readFile("C:\\Users\\PeDeNRiQue\\Copy\\USP\\Disciplinas\\CienciaDosDados\\trabalho\\arquivos\\train2\\partical_1000.txt",",");
+        List<List<String>> matriz = FileUtil.readFile("C:\\Users\\PeDeNRiQue\\Copy\\USP\\Disciplinas\\CienciaDosDados\\trabalho\\arquivos\\train2\\"+ARQUIVO+".txt",";",NUMERO_REGISTROS);
         
-        int total = matriz.size();
-        int parte = (int)((int) total * 0.8);//10%
+        int total = NUMERO_REGISTROS;
+        int parte = (int)((int) total * 0.9);//10%
         List<List<String>> train = matriz.subList(1, parte);
         List<List<String>> teste = matriz.subList(parte, total);
-     
         
         calculateDistances(train, teste);
         
         System.out.println("FIM");
     }
     
+
+    
     public static List<List<String>> calculateDistances(List<List<String>> train,List<List<String>> testes){
     
         for(List<String> teste : testes){
-            teste.add(findKNearestNeighbors(train,teste,5));
+            teste.add(findKNearestNeighbors(train,teste,CONSTANTE_K));
         }
         
         return testes;
@@ -55,7 +68,7 @@ public class KNearestNeighbors {
         }
         
         for(List<String> r : references){
-            temp = euclideanDistance(r,compared,false);
+            temp = euclideanDistance(r,compared,CONSIDERAR_PAR_PRESENTE);
            
             j = 0;
             while(temp < Double.parseDouble(neighbors.get(j).get(0))){
@@ -81,7 +94,7 @@ public class KNearestNeighbors {
         //compared.get(0) -> id
         //compared.get(1) -> target
         FileUtil.writeFile(target+"\t"+compared.get(0)+"\t"+
-                compared.get(1)+"\t"+distance);
+                compared.get(1)+"\t"+distance,FILENAME);
         return target;
     }
     

@@ -16,6 +16,9 @@ import java.util.List;
  * @author PeDeNRiQue
  */
 public class UmKNN {
+    
+    public final static String FILENAME = "filename.txt";
+        
     public static void main(String [] args){
         List<List<String>> matriz = FileUtil.readFile("C:\\Users\\PeDeNRiQue\\Copy\\USP\\Disciplinas\\CienciaDosDados\\trabalho\\arquivos\\train2\\partical_1000.txt",",");
         
@@ -59,7 +62,7 @@ public class UmKNN {
             }
         }
         FileUtil.writeFile(indice+"\t"+target+"\t"+compared.get(0)+"\t"+
-                compared.get(1)+"\t"+distance);
+                compared.get(1)+"\t"+distance,FILENAME);
         return target;
     }
     

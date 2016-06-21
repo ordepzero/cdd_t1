@@ -15,7 +15,7 @@ import java.util.List;
  */
 public class Cienciadados {
 
-    public final static String FILENAME = "filename.txt";
+    public final static String FILENAME = "diferenca_1000.txt";
     
     public static void main(String[] args) {
         List<List<String>> matriz = FileUtil.readFile("C:\\Users\\PeDeNRiQue\\Copy\\USP\\Disciplinas\\CienciaDosDados\\trabalho\\arquivos\\train.csv\\train.txt","\t");

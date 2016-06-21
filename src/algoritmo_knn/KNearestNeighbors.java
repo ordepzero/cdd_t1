@@ -22,38 +22,53 @@ public class KNearestNeighbors {
     mesmo quando um dos valores for ausente, e quando true só será considerado quando os dois registros tiverem 
     um valor.
     */
-    public final static Boolean CONSIDERAR_PAR_PRESENTE = false;    
-    public final static Integer CONSTANTE_K = 5;
-    public final static Integer NUMERO_REGISTROS = 10000;
-    public final static String ARQUIVO = "sem_id";
-    public final static String FILENAME = ARQUIVO+"_"+NUMERO_REGISTROS+"_K"+CONSTANTE_K+".txt";
+    private  Boolean CONSIDERAR_PAR_PRESENTE = false;    
+    private  Integer CONSTANTE_K = 7;
+    private Integer NUMERO_REGISTROS = 1000;
+    private String ARQUIVO = "train_remocao";
+    private String FILENAME = ARQUIVO+"_"+NUMERO_REGISTROS+"_K"+CONSTANTE_K+".txt";
     
     public static void main(String [] args){
-        List<List<String>> matriz = FileUtil.readFile("C:\\Users\\PeDeNRiQue\\Copy\\USP\\Disciplinas\\CienciaDosDados\\trabalho\\arquivos\\train2\\"+ARQUIVO+".txt",";",NUMERO_REGISTROS);
+//        List<List<String>> matriz = 
+//                FileUtil.readFile("C:\\Users\\PeDeNRiQue\\Copy\\USP\\Disciplinas\\CienciaDosDados\\trabalho\\arquivos\\train.csv\\"+ARQUIVO+".txt",";",NUMERO_REGISTROS);
+//        
+//        int total = NUMERO_REGISTROS;
+//        int parte = (int)((int) total * 0.9);//10%
+//        List<List<String>> train = matriz.subList(1, parte);
+//        List<List<String>> teste = matriz.subList(parte, total);
         
-        int total = NUMERO_REGISTROS;
-        int parte = (int)((int) total * 0.9);//10%
-        List<List<String>> train = matriz.subList(1, parte);
-        List<List<String>> teste = matriz.subList(parte, total);
+        List<List<String>> treinamento = FileUtil.readAllFile("C:\\Users\\PeDeNRiQue\\Copy\\USP\\Disciplinas\\CienciaDosDados\\trabalho\\arquivos\\train2\\partical_10000.txt",",");
+        //System.out.println("Primeiro Arquivo\nSegundoArguivo");
+        List<List<String>> teste = FileUtil.readAllFile("C:\\Users\\PeDeNRiQue\\Copy\\USP\\Disciplinas\\CienciaDosDados\\trabalho\\arquivos\\test.csv\\test.txt","\t");
+        //System.out.println("Leu segundo arquivo");
         
-        calculateDistances(train, teste);
+        
+        KNearestNeighbors knn = new KNearestNeighbors(1,false,"submissao.txt");
+        FileUtil.writeFile("ID,PredictedProb",knn.FILENAME);
+        knn.calculateDistances(treinamento.subList(1, treinamento.size()), teste.subList(1, teste.size()));
         
         System.out.println("FIM");
+    }   
+    
+    public KNearestNeighbors(){}
+    
+    public KNearestNeighbors(Integer constanteK,boolean parPresente,String filename){
+        CONSTANTE_K = constanteK;
+        CONSIDERAR_PAR_PRESENTE = parPresente;
+        FILENAME = filename;
     }
     
-
-    
-    public static List<List<String>> calculateDistances(List<List<String>> train,List<List<String>> testes){
+    private List<List<String>> calculateDistances(List<List<String>> train,List<List<String>> testes){
     
         for(List<String> teste : testes){
-            teste.add(findKNearestNeighbors(train,teste,CONSTANTE_K));
+            teste.add(findKNearestNeighbors(train,teste,CONSTANTE_K,CONSIDERAR_PAR_PRESENTE));
         }
         
         return testes;
     }
     
     
-    public static String findKNearestNeighbors(List<List<String>> references,List<String> compared,Integer k){
+    private String findKNearestNeighbors(List<List<String>> references,List<String> compared,Integer k,boolean parPresente){
         Double distance = Double.POSITIVE_INFINITY;
         Double temp;
         String target = null;      
@@ -68,7 +83,9 @@ public class KNearestNeighbors {
         }
         
         for(List<String> r : references){
-            temp = euclideanDistance(r,compared,CONSIDERAR_PAR_PRESENTE);
+            
+            //System.out.println("REFERENCIAS: "+r.get(0)+" <_> ");
+            temp = euclideanDistance(r,compared,parPresente);
            
             j = 0;
             while(temp < Double.parseDouble(neighbors.get(j).get(0))){
@@ -93,18 +110,20 @@ public class KNearestNeighbors {
         
         //compared.get(0) -> id
         //compared.get(1) -> target
-        FileUtil.writeFile(target+"\t"+compared.get(0)+"\t"+
-                compared.get(1)+"\t"+distance,FILENAME);
+//        FileUtil.writeFile(target+"\t"+compared.get(0)+"\t"+
+//                compared.get(1)+"\t"+distance,this.FILENAME);
+        FileUtil.writeFile(compared.get(0)+","+target,this.FILENAME);
         return target;
     }
-    
-    public static List<String> mean(List<List<String>> neighbors){
+
+    private  List<String> mean(List<List<String>> neighbors){
       List<String> mean = new ArrayList<String>();
       List<List<String>> classes = new ArrayList<List<String>>();
       Double summation = 0.0;
       
       
       for(List<String> s : neighbors){
+          //System.out.println(s.get(0)+" >< "+s.get(1));
           
           if( classes.size() == 0){
               List<String> first = new ArrayList<String>();
@@ -116,24 +135,29 @@ public class KNearestNeighbors {
                 if(classes.get(i).get(0).equals(s.get(1))){
                     classes.get(i).add(s.get(0));
                 }else{
-                    List<String> first = new ArrayList<String>();
-                    first.add(s.get(1));//target
-                    first.add(s.get(0));//distance
-                    classes.add(first);
+                    if(i == (classes.size()-1)){
+                        List<String> first = new ArrayList<String>();
+                        first.add(s.get(1));//target
+                        first.add(s.get(0));//distance
+                        classes.add(first);
+                    }
                 }
             }
           }
+          //System.out.println("TAMANHO da CLASSE: "+classes.size());
       }
       
       String target = "";
       Double distance = Double.POSITIVE_INFINITY; 
       Double meanT;
+      Double valorTotal = 0.0;
       
       for(int i = 0; i < classes.size(); i++){
           summation = 0.0;
           for(int j = 1; j < classes.get(i).size(); j++){
               summation += Double.parseDouble(classes.get(i).get(j));
           }
+          valorTotal += summation;
           
           meanT = summation / classes.get(i).size();
           if(meanT < distance){
@@ -141,7 +165,7 @@ public class KNearestNeighbors {
               target = classes.get(i).get(0);
           }
       }
-      
+      //System.out.println("-> "+target+" <> "+distance);
       mean.add(target);
       mean.add(""+distance);
       
@@ -150,7 +174,7 @@ public class KNearestNeighbors {
     
     //FLAG é pra indentificar se vai considerar o cálculo com os valores nulos (quando são ausentes
     // são substituidos por zero) de um dos registros. 
-    public static Double euclideanDistance(List<String> reference,List<String> compared, Boolean flag){
+    private Double euclideanDistance(List<String> reference,List<String> compared, Boolean flag){
         Double distance = 0.;
         Double diference;
         
@@ -195,7 +219,7 @@ public class KNearestNeighbors {
         return Math.sqrt(distance);
     }
     
-    public static void showMatriz(List<List<String>> matriz){
+    private void showMatriz(List<List<String>> matriz){
         for(List<String> ss : matriz){
             for(String s : ss){
                 System.out.print(s+"<>");
